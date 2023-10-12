@@ -1073,5 +1073,12 @@
   "YOUR_IP_WILL_SHARE_DETAILS_SOON": "Your IP will share details soon",
   "YOUR_PROFILE": "Your Profile",
   "YOUR_WORK_AVAILABILITY_WILL_BE": "Your work availability will be ?",
-  "DOWNLOAD": "DOWNLOAD"
+  "DOWNLOAD": "DOWNLOAD",
+  "TYPE_OF_CAMPSITE ": "Type of Campsite ",
+  "INACTIVE_GOVERNMENT_PRIVATE_SCHOOL": "Inactive Government / Private Schools",
+  "GOT_THE_KIT": "Got the kit",
+  "IS_THE_KIT_USEFUL": "Is the kit useful",
+  "SUGGESTIONS_FOR_THE_KIT": "Suggestions for the kit",
+  "THE_FOLLOWING_FACILITIES_ARE_AVAILABLE_AT_THE_CAMP_SITE": "The following facilities are available at the camp site",
+  "PLEASE_NOTE_THAT_THE_FOLLOWING_CHANGES_ARE_AVAILBLE": "Please note that the following changes are available"
 }
