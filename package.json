@@ -28,6 +28,9 @@
     "prettier": "^2.6.0"
   },
   "dependencies": {
+    "i": "^0.3.7",
+    "jspdf": "^2.5.1",
+    "npm": "^10.2.4",
     "rc-time-picker": "^3.7.3"
   }
 }

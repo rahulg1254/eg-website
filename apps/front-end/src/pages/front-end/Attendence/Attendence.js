@@ -865,7 +865,7 @@ export default function Attendence({ footerLinks }) {
                           getUserData();
                         }}
                       >
-                        {t("Submit")}
+                        {t("SUBMIT ")}
                       </AdminTypo.PrimaryButton>
                     )}
                   </HStack>
