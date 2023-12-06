@@ -623,21 +623,21 @@ export default function Attendence({ footerLinks }) {
                 <AdminTypo.H2>{t("PRERAK_ORIENTATION")}</AdminTypo.H2>
               </HStack>
               {/* <HStack>
-              <AdminTypo.Secondarybutton
-                shadow="BlueOutlineShadow"
-                // onPress={() => setModal(true)}
-                rightIcon={
-                  <IconByName
-                    color="#084B82"
-                    _icon={{}}
-                    size="15px"
-                    name="AddLineIcon"
-                  />
-                }
-              >
-                {t("SCHEDULE_EVENT")}{" "}
-              </AdminTypo.Secondarybutton>
-            </HStack> */}
+                <AdminTypo.Secondarybutton
+                  shadow="BlueOutlineShadow"
+                  // onPress={() => setModal(true)}
+                  rightIcon={
+                    <IconByName
+                      color="#084B82"
+                      _icon={{}}
+                      size="15px"
+                      name="AddLineIcon"
+                    />
+                  }
+                >
+                  {t("SCHEDULE_EVENT")}{" "}
+                </AdminTypo.Secondarybutton>
+              </HStack> */}
             </HStack>
             <Box
               bgColor="blueText.300"
@@ -652,19 +652,19 @@ export default function Attendence({ footerLinks }) {
                     {event?.name ? event?.name : event?.type}
                   </AdminTypo.H6>
                   {/* <AdminTypo.Secondarybutton
-                  shadow="BlueOutlineShadow"
-                >
-                  {t("EDIT_DETAILS")}
-                </AdminTypo.Secondarybutton> 
-                  <Box>
-                    <AdminTypo.Secondarybutton
-                      onPress={() => setShowDeleteModal(true)}
-                      shadow="BlueOutlineShadow"
-                    >
-                      {t("DELETE_EVENT")}
-                    </AdminTypo.Secondarybutton>
-                  </Box>
-                  */}
+                    shadow="BlueOutlineShadow"
+                  >
+                    {t("EDIT_DETAILS")}
+                  </AdminTypo.Secondarybutton> 
+                    <Box>
+                      <AdminTypo.Secondarybutton
+                        onPress={() => setShowDeleteModal(true)}
+                        shadow="BlueOutlineShadow"
+                      >
+                        {t("DELETE_EVENT")}
+                      </AdminTypo.Secondarybutton>
+                    </Box>
+                    */}
                 </HStack>
 
                 <HStack
@@ -747,23 +747,23 @@ export default function Attendence({ footerLinks }) {
                 </HStack>
                 <HStack justifyContent={"space-between"} space={10}>
                   {/* <AdminTypo.Secondarybutton
-                    shadow="BlueOutlineShadow"
-                    onPress={(e) => {
-                      setCameraModal(true);
-                      setUserData(
-                        users?.[0] ? { ...users?.[0], index: 0 } : {}
-                      );
-                    }}
-                    endIcon={
-                      <IconByName
-                        isDisabled
-                        name="AddFillIcon"
-                        _icon={{ size: "15" }}
-                      />
-                    }
-                  >
-                    {t("MARK_ATTENDANCE_ALL")}
-                  </AdminTypo.Secondarybutton> */}
+                      shadow="BlueOutlineShadow"
+                      onPress={(e) => {
+                        setCameraModal(true);
+                        setUserData(
+                          users?.[0] ? { ...users?.[0], index: 0 } : {}
+                        );
+                      }}
+                      endIcon={
+                        <IconByName
+                          isDisabled
+                          name="AddFillIcon"
+                          _icon={{ size: "15" }}
+                        />
+                      }
+                    >
+                      {t("MARK_ATTENDANCE_ALL")}
+                    </AdminTypo.Secondarybutton> */}
                   <AdminTypo.Secondarybutton
                     shadow="BlueOutlineShadow"
                     onPress={(e) => {
@@ -937,7 +937,7 @@ export default function Attendence({ footerLinks }) {
                           getUserData();
                         }}
                       >
-                        {t("Submit")}
+                        {t("SUBMIT ")}
                       </AdminTypo.PrimaryButton>
                     )}
                   </HStack>
