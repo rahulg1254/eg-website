@@ -1,25 +1,18 @@
-import React from "react";
 import {
-  BodyLarge,
   H2,
-  t,
   testRegistryService,
   useWindowSize,
+  SunbirdPlayer,
 } from "@shiksha/common-lib";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { SunbirdPlayer } from "@shiksha/common-lib";
-import { useParams } from "react-router-dom";
-import { Button, HStack, VStack } from "native-base";
-import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { VStack } from "native-base";
 
 function Player({ setAlert }) {
-  const { t } = useTranslation();
   const [width, height] = useWindowSize();
   const [assessmentData, setassessmentData] = useState();
-  const [type, setType] = useState("Course");
+  const type = useMemo(() => "Course", []);
   const { context, context_id, do_id } = useParams();
-  const [isEnd, setIsEnd] = React.useState();
 
   useEffect(async () => {
     const { error, ...assesmentData } = await testRegistryService.getAssessment(
@@ -89,7 +82,7 @@ function Player({ setAlert }) {
     console.log("Total Duration:", totalDuration, "seconds");
 
     let score_txt = score ? score.toString() : "0";
-    let duration_txt = props?.duration ? props.duration.toString() : "0";
+    // let duration_txt = props?.duration ? props.duration.toString() : "0";
     data = {
       test_id: "do_113935969671700480155",
       spent_time: totalDuration,
@@ -141,22 +134,20 @@ function Player({ setAlert }) {
               ].includes(assessmentData?.mimeType)
             ) {
               handleTrackData(data, "pdf-video");
-            } else {
-              if (
-                ["application/vnd.ekstep.ecml-archive"].includes(
-                  assessmentData?.mimeType
-                )
-              ) {
-                if (Array.isArray(data)) {
-                  const score = data.reduce(
-                    (old, newData) => old + newData?.score,
-                    0
-                  );
-                  handleTrackData({ ...data, score: `${score}` }, "ecml");
-                  setTrackData(data);
-                } else {
-                  handleTrackData({ ...data, score: `0` }, "ecml");
-                }
+            } else if (
+              ["application/vnd.ekstep.ecml-archive"].includes(
+                assessmentData?.mimeType
+              )
+            ) {
+              if (Array.isArray(data)) {
+                const score = data.reduce(
+                  (old, newData) => old + newData?.score,
+                  0
+                );
+                handleTrackData({ ...data, score: `${score}` }, "ecml");
+                setTrackData(data);
+              } else {
+                handleTrackData({ ...data, score: `0` }, "ecml");
               }
             }
           }}
