@@ -264,13 +264,10 @@
   "CASTE_CERTIFICATE ": "जाति प्रमाणपत्र ",
   "CBOSIGN": "CBO द्वारा प्रमाणित  मार्कशीट",
   "CBOSIGNTRANSFER": "CBO द्वारा प्रमाणित ट्रांसफर सर्टिफिकेट",
-<<<<<<< HEAD
-=======
   "CERTIFICATE": "प्रमाणपत्र",
   "CERTIFICATE_ISSUED_FOR": "प्रमाणपत्र जारी किया",
   "CERTIFICATION": "प्रमाणपत्र",
   "CERTIFICATION_IS_PENDING": "प्रमाणन कार्यक्रम लंबित है",
->>>>>>> upstream/release-1.5.6
   "CHANGE_MY_PASSWORD": "मेरा पासवर्ड बदलें",
   "CHANGE_REQUIRED": "बदलाव की आवश्यकता",
   "CHANGES_NEEDED": "बदलावों की जरूरत",
@@ -556,10 +553,7 @@
   "FACILITATOR_STATUS_VERIFY": "वेरिफाई",
   "FACILITIES": "सुविधाएँ",
   "FACILITIES_AT_CAMP": "शिविर स्थल पर इनमें से कौन सी सुविधा उपलब्ध है?",
-<<<<<<< HEAD
-=======
   "FAILED": "असफल",
->>>>>>> upstream/release-1.5.6
   "FAILED_TO_ASSIGN": "नियत करने में विफल, कृपया फिर से प्रयास करें",
   "FAMILY": "परिवार",
   "FAMILY_CONSENT": "परिवार की सहमति",
