@@ -14,8 +14,8 @@ import Chip, { ChipStatus } from "component/Chip";
 import DataTable from "react-data-table-component";
 import Clipboard from "component/Clipboard";
 import { useTranslation } from "react-i18next";
-
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const columns = (t, certificateDownload) => [
   {
@@ -24,22 +24,21 @@ const columns = (t, certificateDownload) => [
   },
   {
     name: t("PURPOSE"),
-    selector: (row) => row?.context,
+    selector: (row) => row?.events?.[0]?.name,
     attr: "name",
     wrap: true,
   },
   {
     name: t("SCORE"),
-    selector: (row) => row?.score,
+    selector: (row) => {
+      const score = row?.score;
+      const roundedScore = typeof score === "number" ? score.toFixed(2) : "-";
+      return roundedScore;
+    },
     attr: "name",
     wrap: true,
   },
-  // {
-  //   name: "Status",
-  //   selector: (row) => row?.status,
-  //   attr: "name",
-  //   wrap: true,
-  // },
+
   {
     name: t("STATUS"),
     selector: (row) =>
@@ -70,18 +69,13 @@ export default function Certification({ footerLinks }) {
   const reportTemplateRef = React.useRef(null);
 
   const handleGeneratePdf = async () => {
-    const doc = new jsPDF({
-      format: "a4",
-      unit: "px",
-    });
-
-    // Adding the fonts.
-    doc.setFont("Inter-Regular", "normal");
-
-    doc.html(reportTemplateRef.current, {
-      async callback(doc) {
-        await doc.save("document");
-      },
+    const input = reportTemplateRef.current;
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("l");
+      pdf.addImage(imgData, "JPEG", 0, 0);
+      // pdf.output('dataurlnewwindow');
+      pdf.save("download.pdf");
     });
   };
   const certificateDownload = async (data) => {
@@ -227,7 +221,7 @@ export default function Certification({ footerLinks }) {
           />
         </VStack>
       </VStack>
-      <Modal isOpen={downloadCertificate} size="xl">
+      <Modal isOpen={downloadCertificate} size="full" margin={"auto"}>
         <Modal.Content>
           <Modal.Header>
             <HStack justifyContent={"space-between"} pr="10">
@@ -241,8 +235,8 @@ export default function Certification({ footerLinks }) {
               />
             </HStack>
           </Modal.Header>
-          <Modal.Body>
-            <div ref={reportTemplateRef}>
+          <Modal.Body overflow={"scroll"}>
+            <div ref={reportTemplateRef} className="certificae-height">
               <div dangerouslySetInnerHTML={{ __html: downloadCertificate }} />
             </div>
           </Modal.Body>

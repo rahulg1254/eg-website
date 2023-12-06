@@ -10,8 +10,9 @@ import {
   Loading,
   attendanceService,
   facilitatorRegistryService,
-  CardComponent,
   ImageView,
+  testRegistryService,
+  debounce,
 } from "@shiksha/common-lib";
 import DataTable from "react-data-table-component";
 import Chip, { ChipStatus } from "component/Chip";
@@ -38,6 +39,8 @@ import validator from "@rjsf/validator-ajv8";
 import schema from "./schema";
 import { useTranslation } from "react-i18next";
 import Clipboard from "component/Clipboard";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const customStyles = {
   headCells: {
@@ -61,9 +64,14 @@ const renderNameColumn = (row, t) => {
   const hasProfileUrl = !!row?.profile_url;
 
   return (
-    <HStack alignItems="center" space="2">
+    <HStack alignItems={"flex-start"} space="2">
       {hasProfileUrl ? (
-        <Avatar source={{ uri: row?.profile_url }} width="35px" height="35px" />
+        <Avatar
+          alignItems={"start"}
+          source={{ uri: row?.profile_url }}
+          width="35px"
+          height="35px"
+        />
       ) : (
         <IconByName
           isDisabled
@@ -73,6 +81,15 @@ const renderNameColumn = (row, t) => {
         />
       )}
       <Text>{name}</Text>
+    </HStack>
+  );
+};
+const renderIDColumn = (row, t) => {
+  const ID = row?.id;
+
+  return (
+    <HStack alignItems="center" space="2">
+      {ID}
     </HStack>
   );
 };
@@ -117,8 +134,15 @@ const renderAttendeeListColumn = (row, t) => (
   />
 );
 
-const scheduleCandidates = (t, days) => {
+const scheduleCandidates = (t, days, certificateDownload) => {
   return [
+    {
+      name: t("ID"),
+      selector: (row) => renderIDColumn(row, t),
+      sortable: false,
+      attr: "name",
+    },
+
     {
       name: t("NAME"),
       selector: (row) => renderNameColumn(row, t),
@@ -134,16 +158,31 @@ const scheduleCandidates = (t, days) => {
 
     ...days,
     {
-      name: t("ADHAR_KYC"),
-      selector: (row) => renderAadharKycColumn(row, t),
-      sortable: false,
-      attr: "adhar_kyc",
+      name: t("SCORE"),
+      selector: (row) => {
+        const score = row?.lms_test_trackings?.[0]?.score;
+        const roundedScore = typeof score === "number" ? score.toFixed(2) : "-";
+        return roundedScore;
+      },
+      attr: "name",
+      wrap: true,
     },
+
     {
-      name: t("ATTENDEE_LIST_ATTENDENCE_VERIFIED"),
-      selector: (row) => renderAttendeeListColumn(row, t),
-      sortable: false,
-      attr: "attendence_verified",
+      name: t("STATUS"),
+      selector: (row) =>
+        row?.lms_test_trackings?.[0]?.certificate_status === true ? (
+          <AdminTypo.Secondarybutton
+            my="3"
+            onPress={() => certificateDownload(row.lms_test_trackings?.[0])}
+          >
+            {t("DOWNLOAD")}
+          </AdminTypo.Secondarybutton>
+        ) : row?.lms_test_trackings?.[0]?.certificate_status === false ? (
+          <AdminTypo.H6 color="red.500">{t("FAILED")}</AdminTypo.H6>
+        ) : (
+          <AdminTypo.H6>{t("PENDING")}</AdminTypo.H6>
+        ),
     },
   ];
 };
@@ -194,13 +233,30 @@ export default function Attendence({ footerLinks }) {
   const [error, setError] = React.useState("");
   const [formData, setFormData] = React.useState({});
   const [actualDates, setActualDates] = React.useState([]);
-  const [isDisabledAttBtn, setIsDisabledAttBtn] = React.useState();
   const [showModal, setShowModal] = React.useState(false);
   const [userData, setUserData] = React.useState({});
   const [getFacilitator, setFacilitatorProfile] = React.useState();
   const [inputValue, setInputValue] = React.useState();
   const [cameraFile, setcameraFile] = React.useState();
-  // const [updateUserData, setUpdateData] = React.useState();
+  const [downloadCertificate, setDownCertificate] = React.useState();
+  const [inputSearch, setInputSearch] = useState("");
+  const reportTemplateRef = React.useRef(null);
+
+  const certificateDownload = async (data) => {
+    const result = await testRegistryService.postCertificates(data);
+    setDownCertificate(result?.data?.[0]?.certificate_html);
+  };
+
+  const handleGeneratePdf = async () => {
+    const input = reportTemplateRef.current;
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("l");
+      pdf.addImage(imgData, "JPEG", 0, 0);
+      // pdf.output('dataurlnewwindow');
+      pdf.save("download.pdf");
+    });
+  };
 
   const getUserData = async () => {
     const result = await facilitatorRegistryService.getOne({
@@ -214,7 +270,6 @@ export default function Attendence({ footerLinks }) {
   }, []);
 
   const onSwitchToggle = async (row) => {
-    // setIsDisabledAttBtn(`${row.id}-${row.presentDate}`);
     const attendance = row?.attendances?.[row?.index];
     if (attendance) {
       const data = {
@@ -239,8 +294,7 @@ export default function Attendence({ footerLinks }) {
       };
       await attendanceService.createAttendance(data);
     }
-    getUsers();
-    setIsDisabledAttBtn();
+    await getUsers();
     setShowModal(false);
   };
 
@@ -313,15 +367,22 @@ export default function Attendence({ footerLinks }) {
   }
 
   const getUsers = async () => {
-    const result = await eventService.getAttendanceList({ id });
+    let filter = { id };
+    if (inputSearch != "") {
+      filter = { id, search: inputSearch };
+    }
+    const result = await eventService.getAttendanceList(filter);
     setUsers(result?.data || []);
   };
 
   React.useEffect(async () => {
+    await getUsers();
+  }, [inputSearch]);
+
+  React.useEffect(async () => {
     setLoading(true);
     const eventResult = await eventService.getEventListById({ id });
-    const result = await eventService.getAttendanceList({ id });
-    setUsers(result?.data || []);
+
     setEvent(eventResult?.event);
     setPaginationTotalRows(eventResult?.totalCount);
     // please check params?.attendance_type === "one_time" condition
@@ -403,10 +464,14 @@ export default function Attendence({ footerLinks }) {
     }
   };
   const handleInputChange = (event) => {
-    const inputValue = event.target.value;
-    setInputValue(inputValue);
+    const inputValues = event.target.value;
+    setInputValue(inputValues);
   };
 
+  const handleInputSearch = async (event) => {
+    const searchValue = event.target.value;
+    setInputSearch(searchValue);
+  };
   const handlePageChange = (page) => {
     setPage(page);
   };
@@ -513,7 +578,6 @@ export default function Attendence({ footerLinks }) {
       </Box>
     );
   }
-
   return (
     <Layout
       width
@@ -681,7 +745,7 @@ export default function Attendence({ footerLinks }) {
                     {t("CANDIDATES")} {users?.length}
                   </AdminTypo.H3>
                 </HStack>
-                <HStack space={10}>
+                <HStack justifyContent={"space-between"} space={10}>
                   {/* <AdminTypo.Secondarybutton
                     shadow="BlueOutlineShadow"
                     onPress={(e) => {
@@ -716,6 +780,14 @@ export default function Attendence({ footerLinks }) {
                   >
                     {t("ADD_PARTICIPANTS")}
                   </AdminTypo.Secondarybutton>
+                  <Input
+                    value={inputSearch}
+                    maxLength={12}
+                    name="numberInput"
+                    placeholder={t("SEARCH")}
+                    variant="outline"
+                    onChange={handleInputSearch}
+                  />
                 </HStack>
               </HStack>
             </Stack>
@@ -1163,34 +1235,12 @@ export default function Attendence({ footerLinks }) {
                 </Modal.Body>
               </Modal.Content>
             </Modal>
-
             <DataTable
               columns={[
-                ...scheduleCandidates(t, actualDates),
-                {
-                  name: t(""),
-                  selector: (row) => (
-                    <Button
-                      onPress={() => {
-                        setFormData({
-                          ...row,
-                          documents_status: JSON.parse(
-                            row?.user?.program_faciltators[0]?.documents_status
-                          ),
-                        });
-                      }}
-                    >
-                      <IconByName
-                        isDisabled
-                        name="EditBoxLineIcon"
-                        color="gray"
-                        _icon={{ size: "15" }}
-                      />
-                    </Button>
-                  ),
-                },
+                ...scheduleCandidates(t, actualDates, certificateDownload),
               ]}
               key={users}
+              // filter={filter}
               data={users}
               subHeader
               persistTableHead
@@ -1201,11 +1251,39 @@ export default function Attendence({ footerLinks }) {
               paginationTotalRows={paginationTotalRows}
               onChangePage={handlePageChange}
               onChangeRowsPerPage={(e) => setLimit(e)}
-              // onChangePage={(e) => setPage(e)}
             />
           </VStack>
         </Box>
       </ScrollView>
+      <Modal isOpen={downloadCertificate} size="xl">
+        <Modal.Content>
+          <Modal.Header>
+            <HStack justifyContent={"space-between"} pr="10">
+              <AdminTypo.H1>{t("CERTIFICATION")}</AdminTypo.H1>
+              <AdminTypo.Secondarybutton onPress={() => handleGeneratePdf()}>
+                {t("DOWNLOAD")}
+              </AdminTypo.Secondarybutton>
+              <IconByName
+                name="CloseCircleLineIcon"
+                onPress={(e) => setDownCertificate()}
+              />
+            </HStack>
+          </Modal.Header>
+          <Modal.Body
+            style={{
+              backgroundColor: "#f5f5f5",
+              width: "297mm",
+              minHeight: "210mm",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            <div ref={reportTemplateRef}>
+              <div dangerouslySetInnerHTML={{ __html: downloadCertificate }} />
+            </div>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal>
     </Layout>
   );
 }

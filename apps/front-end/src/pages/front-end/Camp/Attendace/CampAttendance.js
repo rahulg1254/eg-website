@@ -31,6 +31,7 @@ export default function ConsentForm() {
   const [cameraFile, setCameraFile] = React.useState();
   const [data, setData] = React.useState({});
   const [isEditable, setIsEditable] = React.useState();
+  const [activityId, setActivityId] = React.useState();
   const [randomAttendance, setRandomAttendance] = React.useState(false);
   const [latData, longData] = useLocationData() || [];
   const navigate = useNavigate();
@@ -46,20 +47,24 @@ export default function ConsentForm() {
     }
   }, []);
 
-
   React.useEffect(async () => {
     setData({ ...data, lat: `${latData}`, long: `${longData}` });
   }, [latData]);
 
   const getData = async () => {
     const result = await campService.getCampDetails({ id });
-    const resultAttendance = await campService.CampAttendance({ id });
+    const getCampExeData = await campService.getcampstatus({ id });
+    const activity_Id = getCampExeData?.data?.id;
+    setActivityId(activity_Id);
+    const resultAttendance = await campService.CampAttendance({
+      id: activity_Id,
+    });
     let attendances = [];
     if (resultAttendance?.data?.length > 0) {
       attendances = resultAttendance?.data;
     }
     setGroupUsers(
-      result?.data?.group_users.map((item, index) => {
+      result?.data?.group_users?.map((item, index) => {
         let attendance = attendances.find((e) => e?.user?.id === item.id);
         return { ...item, index, attendance };
       })
@@ -83,7 +88,7 @@ export default function ConsentForm() {
         let payLoad = {
           ...data,
           id: user?.attendance?.id,
-          context_id: id,
+          context_id: activityId,
           user_id: user?.id,
           status,
         };
@@ -103,7 +108,7 @@ export default function ConsentForm() {
         if (photo_1) {
           const payLoad = {
             ...data,
-            context_id: id,
+            context_id: activityId,
             user_id: user?.id,
             status: PRESENT,
             photo_1: `${photo_1}`,
@@ -116,7 +121,7 @@ export default function ConsentForm() {
       } else if (status === ABSENT) {
         const payLoad = {
           ...data,
-          context_id: id,
+          context_id: activityId,
           user_id: user?.id,
           status: ABSENT,
         };
@@ -143,7 +148,6 @@ export default function ConsentForm() {
     if (randomAttendance) {
       setUserData(item);
     } else {
-      console.log("entered");
       uploadAttendence(item, PRESENT, true);
     }
   };
