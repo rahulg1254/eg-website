@@ -27,10 +27,6 @@ import { useTranslation } from "react-i18next";
 import PhotoUpload from "./PhotoUpload.js";
 import accessControl from "./AccessControl.js";
 import AadhaarNumberValidation from "./AadhaarNumberValidation.js";
-import {
-  setIndexedDBItem,
-  getIndexedDBItem,
-} from "../../../utils/Helper/JSHelper.js"; // Import your indexedDB functions
 
 // PrerakOnboardingForm
 export default function PrerakOnboardingForm({
@@ -57,40 +53,6 @@ export default function PrerakOnboardingForm({
   const [otpButton, setOtpButton] = useState(false);
   const [mobileConditon, setMobileConditon] = useState(false);
   const [fields, setFields] = useState([]);
-
-  //offline starts
-
-  const [storedData, setStoredData] = useState("");
-  useEffect(() => {
-    // Fetch data from IndexedDB when the component mounts
-    fetchDataFromIndexedDB();
-    saveDataToIndexedDB();
-  }, []);
-
-  //get data from indexed db
-  const fetchDataFromIndexedDB = async () => {
-    try {
-      const data = await getIndexedDBItem("exampleKey");
-      if (data) {
-        setStoredData(data);
-      }
-    } catch (error) {
-      console.error("Error fetching data from IndexedDB:", error);
-    }
-  };
-
-  //offline to save enums in indexed db on refresh
-  const saveDataToIndexedDB = async () => {
-    try {
-      const ListOfEnum = await enumRegistryService.listOfEnum();
-      await setIndexedDBItem("enums", ListOfEnum);
-      setStoredData(ListOfEnum);
-    } catch (error) {
-      console.error("Error saving data to IndexedDB:", error);
-    }
-  };
-
-  //offline ends
 
   useEffect(() => {
     setLang(localStorage.getItem("lang"));

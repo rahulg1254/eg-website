@@ -17,6 +17,7 @@ import {
   getOnboardingMobile,
   setSelectedAcademicYear,
   getSelectedProgramId,
+  enumRegistryService,
 } from "@shiksha/common-lib";
 import {
   HStack,
@@ -36,6 +37,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { setIndexedDBItem } from "../../../src/v2/utils/Helper/JSHelper";
 
 const styles = {
   inforBox: {
@@ -82,6 +84,23 @@ export default function Dashboard({ userTokenInfo, footerLinks }) {
   const [selectCohortForm, setSelectCohortForm] = useState(false);
   const [academicYear, setAcademicYear] = useState(null);
   const [academicData, setAcademicData] = useState([]);
+
+  useEffect(() => {
+    // Fetch data from IndexedDB when the component mounts
+    saveDataToIndexedDB();
+  }, []);
+
+  //offline to save enums in indexed db on refresh
+  const saveDataToIndexedDB = async () => {
+    try {
+      const ListOfEnum = await enumRegistryService.listOfEnum();
+      await setIndexedDBItem("enums", ListOfEnum.data);
+    } catch (error) {
+      console.error("Error saving data to IndexedDB:", error);
+    }
+  };
+
+  //offline ends
 
   useEffect(() => {
     async function fetchData() {
