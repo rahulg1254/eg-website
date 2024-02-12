@@ -58,14 +58,16 @@ export default function PrerakOnboardingForm({
   const [mobileConditon, setMobileConditon] = useState(false);
   const [fields, setFields] = useState([]);
 
-  //offline
+  //offline starts
 
   const [storedData, setStoredData] = useState("");
   useEffect(() => {
     // Fetch data from IndexedDB when the component mounts
     fetchDataFromIndexedDB();
+    saveDataToIndexedDB();
   }, []);
 
+  //get data from indexed db
   const fetchDataFromIndexedDB = async () => {
     try {
       const data = await getIndexedDBItem("exampleKey");
@@ -77,15 +79,18 @@ export default function PrerakOnboardingForm({
     }
   };
 
+  //offline to save enums in indexed db on refresh
   const saveDataToIndexedDB = async () => {
-    const newData = "Hello, IndexedDB!"; // Your data to be stored
     try {
-      await setIndexedDBItem("exampleKey", newData);
-      setStoredData(newData);
+      const ListOfEnum = await enumRegistryService.listOfEnum();
+      await setIndexedDBItem("enums", ListOfEnum);
+      setStoredData(ListOfEnum);
     } catch (error) {
       console.error("Error saving data to IndexedDB:", error);
     }
   };
+
+  //offline ends
 
   useEffect(() => {
     setLang(localStorage.getItem("lang"));
