@@ -427,7 +427,6 @@ export default function AddressEdit({ ip }) {
       lat: formData?.location?.lat,
       long: formData?.location?.long,
     };
-
     await AgRegistryService.updateAg(obj, userId);
     navigate(`/beneficiary/${userId}/addressdetails`);
   };
@@ -479,9 +478,17 @@ export default function AddressEdit({ ip }) {
               isDisabled={isDisable}
               mt="3"
               type="submit"
-              onPress={() => formRef?.current?.submit()}
+              onPress={() => {
+                if (formRef.current.validateForm()) {
+                  formRef?.current?.submit();
+                } else {
+                  if (formRef.current.validateForm()) {
+                    formRef?.current?.submit();
+                  }
+                }
+              }}
             >
-              {pages[pages?.length - 1] === page && t("SAVE")}
+              {t("SAVE")}
             </FrontEndTypo.Primarybutton>
           </Form>
         )}
