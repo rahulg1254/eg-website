@@ -1198,6 +1198,7 @@
   "SEARCH_BY_LEARNER_NAME": "Search by learner name ",
   "SEARCH_BY_NAME": "Search By Name",
   "SEARCH_BY_PRERAK_NAME": "Search by Prerak name",
+  "SELECT_MIN_MAX_ERROR": "Please select minimum 1 and maximum 3 options",
   "SELECT": "Select",
   "SELECT_ACADEMIC_YEAR": "Select Academic year",
   "SELECT_ALL": "Select all",
